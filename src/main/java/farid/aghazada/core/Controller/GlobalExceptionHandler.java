@@ -1,10 +1,12 @@
 package farid.aghazada.core.Controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import farid.aghazada.core.Exception.AuthenticationException;
+import farid.aghazada.core.Exception.UserLockedException;
 import farid.aghazada.core.Exception.UserNotFoundException;
 
 @RestControllerAdvice
@@ -28,5 +30,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<String> handleConflict(IllegalStateException ex) {
         return ResponseEntity.status(409).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(UserLockedException.class)
+    public ResponseEntity<String> handleConflict(UserLockedException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ex.getMessage());
     }
 }
