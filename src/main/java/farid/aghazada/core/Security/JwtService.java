@@ -3,6 +3,7 @@ package farid.aghazada.core.Security;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -31,6 +32,7 @@ public class JwtService {
         return Jwts.builder()
             .claims(claims)
             .subject(username)
+            .id(UUID.randomUUID().toString())
             .issuedAt(new Date(System.currentTimeMillis()))
             .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
             .signWith(getSigninKey())
@@ -44,6 +46,10 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractJti(String token) {
+        return extractClaim(token, Claims::getId);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -68,7 +74,7 @@ public class JwtService {
         return extractExpirationDateFromToken(token).before(new Date());
     }
 
-    private Date extractExpirationDateFromToken(String token) {
+    public Date extractExpirationDateFromToken(String token) {
         return Jwts.parser()
             .verifyWith(getSigninKey())
             .build()

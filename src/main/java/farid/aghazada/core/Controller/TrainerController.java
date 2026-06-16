@@ -1,5 +1,6 @@
 package farid.aghazada.core.Controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -70,6 +71,21 @@ public class TrainerController {
             @Valid @RequestBody AuthenticationRequestDto dto
     ) {
         return ResponseEntity.ok(authenticationService.authenticateUser(dto.username(), dto.password()));
+    }
+
+    @Operation(
+        summary = "Trainer logout",
+        description = "Invalidates the trainer's JWT token. Requires authentication via Authorization header with Bearer token."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Logout successful"),
+        @ApiResponse(responseCode = "400", description = "No JWT token found in request headers"),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    })
+    @PostMapping("/trainers/logout")
+    public ResponseEntity<Void> logoutTrainer(HttpServletRequest request) {
+        authenticationService.logoutUser(request);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(

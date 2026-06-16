@@ -20,10 +20,12 @@ import farid.aghazada.core.Service.CustomUserDetailsService;
 public class JwtAuthFilter extends OncePerRequestFilter{
 
     private final CustomUserDetailsService userDetailsService;
+    private final JwtBlacklistService jwtBlacklistService;
     private final JwtService jwtService;
 
-    public JwtAuthFilter(CustomUserDetailsService userDetailsService, JwtService jwtService) {
+    public JwtAuthFilter(CustomUserDetailsService userDetailsService, JwtBlacklistService jwtBlacklistService, JwtService jwtService) {
         this.userDetailsService = userDetailsService;
+        this.jwtBlacklistService = jwtBlacklistService;
         this.jwtService = jwtService;
     }
 
@@ -37,6 +39,12 @@ public class JwtAuthFilter extends OncePerRequestFilter{
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             username = jwtService.extractUsername(token);
+
+            String jti = jwtService.extractJti(token);
+            if (jwtBlacklistService.isTokenBlacklisted(jti)) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has been invalidated");
+                return;
+            }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

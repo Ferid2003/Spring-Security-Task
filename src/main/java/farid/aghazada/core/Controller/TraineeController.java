@@ -2,6 +2,7 @@ package farid.aghazada.core.Controller;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import farid.aghazada.core.DTO.Trainee.TraineeRegistrationDto;
 import farid.aghazada.core.DTO.Trainee.TraineeUpdateDto;
 import farid.aghazada.core.DTO.Trainee.TraineeUpdateProfileResponseDto;
 import farid.aghazada.core.DTO.Trainer.TrainerSummaryDto;
+import farid.aghazada.core.Security.JwtBlacklistService;
 import farid.aghazada.core.Service.AuthenticationService;
 import farid.aghazada.core.Service.TraineeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,7 +46,6 @@ public class TraineeController {
         this.traineeService = traineeService;
         this.authenticationService = authenticationService;
     }
-
 
     @Operation(
         summary = "Register a new trainee",
@@ -75,6 +76,21 @@ public class TraineeController {
             @Valid @RequestBody AuthenticationRequestDto dto
     ) {
         return ResponseEntity.ok(authenticationService.authenticateUser(dto.username(), dto.password()));
+    }
+
+    @Operation(
+        summary = "Trainee logout",
+        description = "Invalidates the trainee's JWT token by adding it to the blacklist. Requires authentication via Authorization header with Bearer token."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Logout successful"),
+        @ApiResponse(responseCode = "400", description = "No JWT token found in request headers"),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    })
+    @PostMapping("/trainees/logout")
+    public ResponseEntity<Void> logoutTrainee(HttpServletRequest request) {
+        authenticationService.logoutUser(request);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(

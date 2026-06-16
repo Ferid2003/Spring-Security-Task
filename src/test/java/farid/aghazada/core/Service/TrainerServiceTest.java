@@ -56,7 +56,6 @@ class TrainerServiceTest {
 
     @Test
     void createTrainerGeneratesCredentialsAndSaves() {
-        // Pass null trainingType to skip the trainingTypeRepository lookup branch
         TrainerRegistrationDto dto = new TrainerRegistrationDto("John", "Smith", null);
 
         when(helperService.generateUsername("John", "Smith")).thenReturn("John.Smith");
@@ -145,10 +144,12 @@ class TrainerServiceTest {
         trainer.setUser(user);
 
         when(trainerRepository.findByUserUsername("John.Smith")).thenReturn(Optional.of(trainer));
+        when(passwordEncoder.matches("old", "old")).thenReturn(true);
+        when(passwordEncoder.encode("newPass")).thenReturn("hashedNewPass"); 
 
         trainerService.changePassword("John.Smith", new PasswordChangeDto("old", "newPass"));
 
-        assertThat(trainer.getUser().getPassword()).isEqualTo("newPass");
+        assertThat(trainer.getUser().getPassword()).isEqualTo("hashedNewPass");
     }
 
     @Test
@@ -159,6 +160,7 @@ class TrainerServiceTest {
         trainer.setUser(user);
 
         when(trainerRepository.findByUserUsername("John.Smith")).thenReturn(Optional.of(trainer));
+        when(passwordEncoder.matches("wrong", "old")).thenReturn(false);
 
         assertThatThrownBy(() -> trainerService.changePassword("John.Smith", new PasswordChangeDto("wrong", "newPass")))
                 .isInstanceOf(IllegalArgumentException.class)

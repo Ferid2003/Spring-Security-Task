@@ -148,10 +148,12 @@ class TraineeServiceTest {
         trainee.setUser(user);
 
         when(traineeRepository.findByUserUsername("Jane.Doe")).thenReturn(Optional.of(trainee));
+        when(passwordEncoder.matches("old", "old")).thenReturn(true);
+        when(passwordEncoder.encode("newPass")).thenReturn("hashedNewPass");
 
         traineeService.changePassword("Jane.Doe", new PasswordChangeDto("old", "newPass"));
 
-        assertThat(trainee.getUser().getPassword()).isEqualTo("newPass");
+        assertThat(trainee.getUser().getPassword()).isEqualTo("hashedNewPass");
     }
 
     @Test

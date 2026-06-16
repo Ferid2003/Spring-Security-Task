@@ -77,4 +77,12 @@ class JwtServiceTest {
         assertThatThrownBy(() -> jwtService.validateToken(tamperedToken, "Jane.Doe"))
             .isInstanceOf(Exception.class);
     }
+
+    @Test
+    void extractJtiReturnsCorrectJtiFromToken() {
+        String token = jwtService.generateToken("Jane.Doe");
+        String jti = jwtService.extractJti(token);
+
+        assertThat(jti).isNotNull();
+    }
 }

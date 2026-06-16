@@ -37,14 +37,15 @@ public class TrainerService {
 
     private HelperService helperService;
 
-    private final PasswordEncoder passwordEncoder;
-
-    public TrainerService(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private GymMetricsService gymMetricsService;
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Autowired
     public void setHelperService(HelperService helperService) {
