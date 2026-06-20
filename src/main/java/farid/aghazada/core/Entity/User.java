@@ -35,6 +35,12 @@ public class User {
     @Column(nullable = false)
     private Boolean isActive;
 
+    @Column(nullable = false)
+    private Integer tokenVersion;
+
+    @Column(nullable = false)
+    private String role;
+
     public String getFirstName() {
         return firstName;
     }
@@ -56,6 +62,19 @@ public class User {
     public String getPassword() {
         return password;
     }
+
+    public String getRole() {
+        return role;
+    }
+
+    public int getTokenVersion() {
+        return tokenVersion;
+    }
+
+    public void setTokenVersion(int tokenVersion) {
+        this.tokenVersion = tokenVersion;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -66,8 +85,16 @@ public class User {
         this.isActive = isActive;
     }
 
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public Long getUserId() {
         return userId;
+    }
+
+    public void incrementTokenVersion() {
+        this.tokenVersion++;
     }
 
 }

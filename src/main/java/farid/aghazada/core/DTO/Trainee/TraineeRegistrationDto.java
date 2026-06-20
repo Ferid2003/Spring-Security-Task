@@ -23,6 +23,8 @@ public record TraineeRegistrationDto(
         user.setUsername(username);
         user.setPassword(password);
         user.setActive(true);
+        user.setRole("ROLE_TRAINEE");
+        user.setTokenVersion(0);
 
         Trainee trainee = new Trainee();
         trainee.setDateOfBirth(dto.dateOfBirth());

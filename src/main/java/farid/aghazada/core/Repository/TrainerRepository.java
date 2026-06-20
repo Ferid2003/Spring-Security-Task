@@ -13,7 +13,8 @@ import farid.aghazada.core.Entity.Trainer;
 @Repository
 public interface TrainerRepository extends JpaRepository<Trainer, Long> {
 
-    Optional<Trainer> findByUserUsername(String username);
+    @Query("SELECT t FROM Trainer t JOIN FETCH t.user JOIN FETCH t.specialization LEFT JOIN FETCH t.trainees WHERE t.user.username = :username")
+    Optional<Trainer> findByUserUsername(@Param("username") String username);
 
     List<Trainer> findByUserUsernameIn(List<String> usernames);
 

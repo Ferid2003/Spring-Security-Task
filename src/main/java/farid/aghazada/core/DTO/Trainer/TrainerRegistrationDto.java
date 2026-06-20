@@ -23,6 +23,8 @@ public record TrainerRegistrationDto(
         user.setUsername(username);
         user.setPassword(password);
         user.setActive(true);
+        user.setRole("ROLE_TRAINER");
+        user.setTokenVersion(0);
 
         Trainer trainer = new Trainer();
         trainer.setUser(user);

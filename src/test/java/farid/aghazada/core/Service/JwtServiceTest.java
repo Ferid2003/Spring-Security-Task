@@ -27,44 +27,44 @@ class JwtServiceTest {
 
     @Test
     void generateTokenReturnsNonNullToken() {
-        String token = jwtService.generateToken("Jane.Doe");
+        String token = jwtService.generateToken("Jane.Doe", 0);
         assertThat(token).isNotNull();
     }
 
     @Test
     void generateTokenReturnsNonEmptyToken() {
-        String token = jwtService.generateToken("Jane.Doe");
+        String token = jwtService.generateToken("Jane.Doe" ,0);
         assertThat(token).isNotBlank();
     }
 
     @Test
     void extractUsernameReturnsCorrectUsername() {
-        String token = jwtService.generateToken("Jane.Doe");
+        String token = jwtService.generateToken("Jane.Doe", 0);
         assertThat(jwtService.extractUsername(token)).isEqualTo("Jane.Doe");
     }
 
     @Test
     void validateTokenReturnsTrueForValidToken() {
-        String token = jwtService.generateToken("Jane.Doe");
+        String token = jwtService.generateToken("Jane.Doe", 0);
         assertThat(jwtService.validateToken(token, "Jane.Doe")).isTrue();
     }
 
     @Test
     void validateTokenReturnsFalseForWrongUsername() {
-        String token = jwtService.generateToken("Jane.Doe");
+        String token = jwtService.generateToken("Jane.Doe", 0);
         assertThat(jwtService.validateToken(token, "John.Smith")).isFalse();
     }
 
     @Test
     void generateTokenForDifferentUsersReturnsDifferentTokens() {
-        String token1 = jwtService.generateToken("Jane.Doe");
-        String token2 = jwtService.generateToken("John.Smith");
+        String token1 = jwtService.generateToken("Jane.Doe", 0);
+        String token2 = jwtService.generateToken("John.Smith", 0);
         assertThat(token1).isNotEqualTo(token2);
     }
 
     @Test
     void extractUsernameWithTamperedTokenThrowsException() {
-        String token = jwtService.generateToken("Jane.Doe");
+        String token = jwtService.generateToken("Jane.Doe", 0);
         String tamperedToken = token.substring(0, token.length() - 5) + "XXXXX";
         assertThatThrownBy(() -> jwtService.extractUsername(tamperedToken))
             .isInstanceOf(Exception.class);
@@ -72,17 +72,10 @@ class JwtServiceTest {
 
     @Test
     void validateTokenReturnsFalseForTamperedToken() {
-        String token = jwtService.generateToken("Jane.Doe");
+        String token = jwtService.generateToken("Jane.Doe", 0);
         String tamperedToken = token.substring(0, token.length() - 5) + "XXXXX";
         assertThatThrownBy(() -> jwtService.validateToken(tamperedToken, "Jane.Doe"))
             .isInstanceOf(Exception.class);
     }
 
-    @Test
-    void extractJtiReturnsCorrectJtiFromToken() {
-        String token = jwtService.generateToken("Jane.Doe");
-        String jti = jwtService.extractJti(token);
-
-        assertThat(jti).isNotNull();
-    }
 }

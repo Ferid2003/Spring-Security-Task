@@ -3,8 +3,10 @@ package farid.aghazada.core.Repository;
 import java.util.Optional;
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.repository.CrudRepository;
 
 import farid.aghazada.core.Entity.User;
@@ -22,4 +24,9 @@ public interface UserRepository extends CrudRepository<User, Long> {
     Boolean existsByUsername(String username);
 
     Optional<User> findByUsername(String username);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.tokenVersion = u.tokenVersion + 1 WHERE u.username = :username")
+    void incrementTokenVersion(@Param("username") String username);
 }

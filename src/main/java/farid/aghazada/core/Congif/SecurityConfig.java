@@ -21,10 +21,10 @@ import farid.aghazada.core.Security.JwtAuthFilter;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtAuthFilter JwtAuthFilter;
+    private final JwtAuthFilter jwtAuthFilter;
 
     public SecurityConfig(JwtAuthFilter JwtAuthFilter) {
-        this.JwtAuthFilter = JwtAuthFilter;
+        this.jwtAuthFilter = JwtAuthFilter;
     }
 
     @Bean
@@ -37,6 +37,8 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/trainees/authenticate").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/trainers").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/trainers/authenticate").permitAll()
+                    .requestMatchers("/api/trainers/**").hasRole("TRAINER")
+                    .requestMatchers("/api/trainees/**").hasRole("TRAINEE")
 
                     .anyRequest().authenticated()
                     )
@@ -46,7 +48,7 @@ public class SecurityConfig {
             .exceptionHandling(ex -> ex
                     .authenticationEntryPoint((request, response, authException) -> 
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized ")))
-            .addFilterBefore(JwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

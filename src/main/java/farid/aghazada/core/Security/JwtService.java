@@ -3,7 +3,6 @@ package farid.aghazada.core.Security;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -22,17 +21,17 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String SECRET;
 
-    public String generateToken(String username) {
+    public String generateToken(String username, int tokenVersion) {
         Map<String, Object> claims = new HashMap<>();
 
-        return createToken(claims, username);
+        return createToken(claims, username, tokenVersion);
     }
 
-    private String createToken(Map<String, Object> claims, String username) {
+    private String createToken(Map<String, Object> claims, String username, int tokenVersion) {
         return Jwts.builder()
             .claims(claims)
             .subject(username)
-            .id(UUID.randomUUID().toString())
+            .claim("tokenVersion", tokenVersion)
             .issuedAt(new Date(System.currentTimeMillis()))
             .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
             .signWith(getSigninKey())
@@ -46,10 +45,6 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
-    }
-
-    public String extractJti(String token) {
-        return extractClaim(token, Claims::getId);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -81,5 +76,10 @@ public class JwtService {
             .parseSignedClaims(token)
             .getPayload()
             .getExpiration();
+    }
+
+    public int extractTokenVersion(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("tokenVersion", Integer.class);
     }
 }

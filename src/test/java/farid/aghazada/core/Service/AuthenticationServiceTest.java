@@ -26,7 +26,6 @@ import org.springframework.security.core.Authentication;
 
 import farid.aghazada.core.DTO.AuthenticationResponseDto;
 import farid.aghazada.core.Exception.UserLockedException;
-import farid.aghazada.core.Security.JwtBlacklistService;
 import farid.aghazada.core.Security.JwtService;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,9 +39,6 @@ class AuthenticationServiceTest {
 
     @Mock
     private BruteForceProtectionService bruteForceProtectionService;
-
-    @Mock
-    private JwtBlacklistService jwtBlacklistService;
 
     @Mock
     private HttpServletRequest request;
@@ -59,7 +55,7 @@ class AuthenticationServiceTest {
     void authenticateUserReturnsTokenWhenCredentialsAreValid() {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
             .thenReturn(mock(Authentication.class));
-        when(jwtService.generateToken("Jane.Doe")).thenReturn("mocked.jwt.token");
+        when(jwtService.generateToken("Jane.Doe", 0)).thenReturn("mocked.jwt.token");
 
         AuthenticationResponseDto result = authenticationService.authenticateUser("Jane.Doe", "password");
 
@@ -79,7 +75,7 @@ class AuthenticationServiceTest {
     void authenticateUserCallsAuthenticationManagerWithCorrectCredentials() {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
             .thenReturn(mock(Authentication.class));
-        when(jwtService.generateToken("Jane.Doe")).thenReturn("mocked.jwt.token");
+        when(jwtService.generateToken("Jane.Doe", 0)).thenReturn("mocked.jwt.token");
 
         authenticationService.authenticateUser("Jane.Doe", "password");
 
@@ -115,44 +111,11 @@ class AuthenticationServiceTest {
         when(bruteForceProtectionService.isBlocked("Jane.Doe")).thenReturn(false);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
             .thenReturn(mock(Authentication.class));
-        when(jwtService.generateToken("Jane.Doe")).thenReturn("mocked.jwt.token");
+        when(jwtService.generateToken("Jane.Doe", 0)).thenReturn("mocked.jwt.token");
 
         authenticationService.authenticateUser("Jane.Doe", "password");
 
         verify(bruteForceProtectionService).loginSucceeded("Jane.Doe");
-    }
-
-    @Test
-    void logoutUserBlacklistsTokenWhenHeaderIsValid() {
-        when(request.getHeader("Authorization")).thenReturn("Bearer valid.jwt.token");
-        when(jwtService.extractJti("valid.jwt.token")).thenReturn("jti-123");
-        Date expiration = new Date();
-        when(jwtService.extractExpirationDateFromToken("valid.jwt.token")).thenReturn(expiration);
-
-        authenticationService.logoutUser(request);
-
-        verify(jwtBlacklistService).blacklistToken("jti-123", expiration);
-    }
-
-    @Test
-    void logoutUserThrowsWhenHeaderIsMissing() {
-        when(request.getHeader("Authorization")).thenReturn(null);
-
-        assertThatThrownBy(() -> authenticationService.logoutUser(request))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Authorization header must be provided and start with Bearer");
-
-        verifyNoInteractions(jwtBlacklistService);
-    }
-
-    @Test
-    void logoutUserThrowsWhenHeaderDoesNotStartWithBearer() {
-        when(request.getHeader("Authorization")).thenReturn("Basic somecredentials");
-
-        assertThatThrownBy(() -> authenticationService.logoutUser(request))
-            .isInstanceOf(IllegalArgumentException.class);
-
-        verifyNoInteractions(jwtBlacklistService);
     }
 
 }

@@ -25,7 +25,6 @@ import farid.aghazada.core.DTO.Trainee.TraineeRegistrationDto;
 import farid.aghazada.core.DTO.Trainee.TraineeUpdateDto;
 import farid.aghazada.core.DTO.Trainee.TraineeUpdateProfileResponseDto;
 import farid.aghazada.core.DTO.Trainer.TrainerSummaryDto;
-import farid.aghazada.core.Security.JwtBlacklistService;
 import farid.aghazada.core.Service.AuthenticationService;
 import farid.aghazada.core.Service.TraineeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -89,7 +88,6 @@ public class TraineeController {
     })
     @PostMapping("/trainees/logout")
     public ResponseEntity<Void> logoutTrainee(HttpServletRequest request) {
-        authenticationService.logoutUser(request);
         return ResponseEntity.ok().build();
     }
 
